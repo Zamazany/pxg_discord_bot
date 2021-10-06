@@ -2,17 +2,34 @@
 import discord
 import datetime
 import random
-
 import os
+
+from dotenv import load_dotenv
 from discord.ext import commands
 from datetime import datetime, timedelta
 
 client = commands.Bot(command_prefix='.')
 
+# load the file that contain the bot token
+load_dotenv()
+
 # path to images for pxg
 pxg_screen_path = r".\pxg_image\\"
 
-
+# dictionary that contain names of images for professions
+profession_dict = {
+    "sc": ['StylistaC1.png', 'StylistaC2.png', 'StylistaC3.png', 'StylistaC4.png', 'StylistaC5.png', 'StylistaC6.png',
+           'StylistaC7.png'],
+    "pa": ['pA1.png', 'pA2.png', 'pA3.png', 'pA4.png', 'pA5'],
+    "pb": ['pB1.png', 'pB2.png', 'pB3.png', 'pB4.png'],
+    "pc": ['pC1.png', 'pC2.png', 'pC3.png'],
+    "pd": ['pD1.png', 'pD2.png', 'pD3.png'],
+    "pe": ['pE.png'],
+    "aa": ['advA1.png', 'advA2.png', 'advA3.png'],
+    "ab": ['advB.png'],
+    "ac": ['advC.png'],
+    "ad": ['advD.png'],
+    "ae": ['advE.png']}
 
 # print in console when bot is ready
 @client.event
@@ -26,11 +43,12 @@ async def ping(ctx):
     await ctx.send(f'Ping {round(client.latency * 1000)} ms')
 
 
-# print a list of pxg commands
+# print a list of available commands commands
 @client.command()
 async def pxg(ctx):
-    await ctx.send(f'adventurerE, adventurerD, adventurerC, adventurerB, adventurerA, professorE, professorD, professorC,\
- professorA, stamina (hh:mm), boost (number_of_boost actual_boost wanted_boost) ')
+    await ctx.send(f'stamina (hh:mm), boost (number_of_boost actual_boost wanted_boost),\n'
+                   f'prof (first letter of profession)(profession level A-E)\n'
+                   f'   available profession: adventurer, professor, stylist (only C for now)')
 
 
 # count a number of stones required to boost pokemon "tabela boost" is on this webside:
@@ -39,98 +57,27 @@ async def pxg(ctx):
 async def boost(ctx, number, level=0, max_boost=50):
     stone = 1
     boost_cost = 1
-    stone_used = 1
-    stone_acquired = 1
+    stone_acquired = 0
 
     for i in range(1, max_boost):
         if i % int(number) == 0:
             stone = stone + 1
 
+        if i == level:
+            stone_acquired = boost_cost
+
         boost_cost = boost_cost + stone
 
-    for i in range(1, level):
-        if i % int(number) == 0:
-            stone_used = stone_used + 1
+    await ctx.send(f'You will need: {int(boost_cost - stone_acquired)} stones to boost your pokemon from +{level} to '
+                   f'+{max_boost}')
 
-        stone_acquired = stone_acquired + stone_used
-
-    if level == 0:
-        stone_acquired = 0
-
-    response = boost_cost - stone_acquired
-    await ctx.send(f'You need: {int(response)} stones')
-
-
-@client.command(aliases=['adventurere', 'ae', 'AE', 'aE'])
-async def adventurerE(ctx):
-    await ctx.send(file=discord.File(pxg_screen_path + 'advE.png'))
-
-
-@client.command(aliases=['adventurerd', 'ad', 'AD', 'aD'])
-async def adventurerD(ctx):
-    await ctx.send(file=discord.File(pxg_screen_path + 'advD.png'))
-
-
-@client.command(aliases=['adventurerc', 'ac', 'AC', 'aC'])
-async def adventurerC(ctx):
-    await ctx.send(file=discord.File(pxg_screen_path + 'advC.png'))
-
-
-@client.command(aliases=['AdventurerB', 'ab', 'AB', 'aB'])
-async def adventurerB(ctx):
-    await ctx.send(file=discord.File(pxg_screen_path + 'advB.png'))
-
-
-@client.command(aliases=['AdventurerA', 'adventurera', 'aa', 'AA', 'aA'])
-async def adventurerA(ctx):
-    sslist = 'advA1.png', 'advA2.png', 'advA3.png'
-    for ss in sslist:
+@client.command()
+async def prof(ctx, profession):
+    ss_list = profession_dict.get(profession)
+    for ss in ss_list:
         await ctx.send(file=discord.File(pxg_screen_path + ss))
 
-
-@client.command(aliases=['profesorE', 'profesore', 'professore', 'pe', 'pE'])
-async def professorE(ctx):
-    sslist = 'pE.png'
-    await ctx.send(file=discord.File(pxg_screen_path + sslist))
-
-
-@client.command(aliases=['profesorD', 'profesord', 'professord', 'pD', 'pd'])
-async def professorD(ctx):
-    sslist = 'pD1.png', 'pD2.png', 'pD3.png'
-    for ss in sslist:
-        await ctx.send(file=discord.File(pxg_screen_path + ss))
-
-
-@client.command(aliases=['profesorC', 'professorc', 'profesorc', 'pc', 'pC'])
-async def professorC(ctx):
-    sslist = 'pC1.png', 'pC2.png', 'pC3.png'
-    for ss in sslist:
-        await ctx.send(file=discord.File(pxg_screen_path + ss))
-
-
-@client.command(aliases=['profesorB', 'professorb', 'profesorb', 'pB', 'pb'])
-async def professorB(ctx):
-    sslist = 'pB1.png', 'pB2.png', 'pB3.png', 'pB4.png'
-    for ss in sslist:
-        await ctx.send(file=discord.File(pxg_screen_path + ss))
-
-
-@client.command(aliases=['profesorA', 'profesora', 'professora', 'pa', 'pA'])
-async def professorA(ctx):
-    sslist = 'pA1.png', 'pA2.png', 'pA3.png', 'pA4.png', 'pA5'
-    for ss in sslist:
-        await ctx.send(file=discord.File(pxg_screen_path + ss))
-
-
-@client.command(aliases=['stylistC', 'stylistc', 'stylistac', 'sc', 'sC'])
-async def stylistaC(ctx):
-    sslist = 'StylistaC1.png', 'StylistaC2.png', 'StylistaC3.png', 'StylistaC4.png', 'StylistaC5', 'StylistaC6', \
-             'StylistaC7'
-    for ss in sslist:
-        await ctx.send(file=discord.File(pxg_screen_path + ss))
-
-
-# count when your stamina will be full
+# count when your stamina will be full(56:00)
 @client.command(aliases=['S', 's', 'stamina'])
 async def Stamina(ctx, *, time):
     stamina_count = timedelta(hours=00, minutes=00)
@@ -151,8 +98,6 @@ async def Stamina(ctx, *, time):
     response = response.strftime('%d/%m %H:%M')
     await ctx.send(f'Full stamina will be available at: {response}')
 
-
-
 # a command to rolling dice
 @client.command()
 async def roll(ctx, dice):
@@ -161,5 +106,4 @@ async def roll(ctx, dice):
         responses = random.randint(1, int(number))
         await ctx.send(f'rolled {responses}')
 
-#client.login(process.env.TOKEN)
-client.run(os.getenv("token"))
+client.run(os.getenv('BOT_TOKEN'))
